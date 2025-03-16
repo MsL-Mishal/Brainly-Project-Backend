@@ -10,7 +10,7 @@ const userRouter = Router();    // Creates a new router object
 
 // Defining the zod schema for user signup
 const userSignupSchema = z.object({
-    username: z.string().regex(/^[a-zA-Z\d]{3,10}$/, { message: 'Username must be 3-10 characters long and contain only letters and digits' }),
+    username: z.string().regex(/^[a-zA-Z\d]{3,20}$/, { message: 'Username must be 3-20 characters long and contain only letters and digits' }),
     password: z.string().regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/, { message: 'Password must be 8-20 characters long and contain atleast one uppercase, one lowercase, one special character, one number' })
 });
 
@@ -19,7 +19,7 @@ type userSignupType = z.infer<typeof userSignupSchema>;
 // Defining the zod schema for content
 const contentSchema = z.object({
     link: z.string().url().min(1, { message: 'Link cannot be empty' }),
-    type: z.enum(['image', 'video', 'article', 'audio']),
+    type: z.enum(['image', 'video', 'article', 'twitter']),
     title: z.string().min(1, { message: 'Title cannot be empty' }),
     tags: z.array(z.string()).min(1, { message: 'At least one tag is required' })
 });
@@ -27,7 +27,9 @@ const contentSchema = z.object({
 type contentType = z.infer<typeof contentSchema>;
 
 // Defining the zod schema for share content
-const shareSchema = z.boolean();
+const shareSchema = z.object({
+    share: z.boolean()
+});
 
 type shareType = z.infer<typeof shareSchema>;
 
@@ -111,8 +113,8 @@ userRouter.post('/signin', async (req: Request, res: Response) => {
 
         res.cookie('token', token, { 
             httpOnly: true,
-            secure : process.env.NODE_ENV === 'production',
-            sameSite : 'strict',
+            secure : true,
+            sameSite : "none",
             maxAge : 24*60*60*1000  // sets 1 day as cookie expiry
         });
 
